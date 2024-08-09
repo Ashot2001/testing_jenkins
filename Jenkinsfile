@@ -9,7 +9,7 @@ pipeline {
         stage('Checkout') {
             steps {
                 // Клонируем репозиторий
-                git 'https://github.com/Ashot2001/testing_jenkins.git'
+               git branch: 'main', url: 'https://github.com/Ashot2001/testing_jenkins.git'
             }
         }
 
