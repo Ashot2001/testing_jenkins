@@ -2,7 +2,7 @@ pipeline {
     agent any
 
     environment {
-        DOCKER_CREDENTIALS_ID = 'your-docker-credentials-id'  // Убедитесь, что вы добавили свои Docker учетные данные в Jenkins
+        DOCKER_CREDENTIALS_ID = 'docker-hub-credentials'  // Убедитесь, что вы добавили свои Docker учетные данные в Jenkins
     }
 
     stages {
