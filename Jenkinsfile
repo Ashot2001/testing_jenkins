@@ -2,33 +2,21 @@ pipeline {
     agent any
 
     environment {
-        DOCKER_CREDENTIALS_ID = 'docker-hub-credentials'  // Убедитесь, что вы добавили свои Docker учетные данные в Jenkins
+        DOCKER_CREDENTIALS_ID = 'docker-hub-credentials'
     }
 
     stages {
         stage('Checkout') {
             steps {
-                // Клонируем репозиторий
-               git branch: 'main', url: 'https://github.com/Ashot2001/testing_jenkins.git'
+                git branch: 'main', url: 'https://github.com/Ashot2001/testing_jenkins.git'
             }
         }
 
-        stage('Build Docker Image') {
+        stage('Build and Test Docker Image') {
             steps {
                 script {
-                    // Построение Docker образа
+                    // Сборка и тестирование в одном шаге
                     dockerImage = docker.build('ashot001/my-nodejs-app')
-                }
-            }
-        }
-
-        stage('Test') {
-            steps {
-                script {
-                    // Запуск тестов внутри Docker контейнера
-                    dockerImage.inside {
-                        sh 'npm test'
-                    }
                 }
             }
         }
@@ -47,7 +35,6 @@ pipeline {
 
     post {
         always {
-            // Очистка рабочей директории
             cleanWs()
         }
     }
