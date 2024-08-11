@@ -12,10 +12,21 @@ pipeline {
             }
         }
 
+        stage('Docker Login Test') {
+            steps {
+                script {
+                    // Проверка аутентификации в Docker Hub
+                    withCredentials([usernamePassword(credentialsId: DOCKER_CREDENTIALS_ID, passwordVariable: 'DOCKER_PASSWORD', usernameVariable: 'DOCKER_USERNAME')]) {
+                        sh 'echo $DOCKER_PASSWORD | docker login -u $DOCKER_USERNAME --password-stdin'
+                        sh 'docker logout'
+                    }
+                }
+            }
+        }
+
         stage('Build and Test Docker Image') {
             steps {
                 script {
-                    // Сборка и тестирование в одном шаге
                     dockerImage = docker.build('ashot001/my-nodejs-app')
                 }
             }
@@ -24,7 +35,6 @@ pipeline {
         stage('Publish Docker Image') {
             steps {
                 script {
-                    // Логин в Docker Hub и публикация образа
                     docker.withRegistry('https://index.docker.io/v2/', DOCKER_CREDENTIALS_ID) {
                         dockerImage.push('latest')
                     }
