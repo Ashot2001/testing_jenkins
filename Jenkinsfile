@@ -1,9 +1,9 @@
 pipeline {
-    agent {label 'node_agent'}
+    agent { label 'node_agent' }
 
     environment {
         DOCKER_CREDENTIALS_ID = 'docker-hub-credentials'
-        IMAGE_NAME = 'ashot001/my-nodejs-app'
+        IMAGE_NAME = 'ashot001/my-nodejs-app:latest'  // Убедитесь, что это имя правильное
     }
 
     stages {
@@ -16,9 +16,7 @@ pipeline {
         stage('Build and Test Docker Image') {
             steps {
                 script {
-                    // Сборка и тестирование в одном шаге
                     dockerImage = docker.build(IMAGE_NAME)
-                    echo "Docker Image Built: ${dockerImage.id}"
                 }
             }
         }
@@ -27,14 +25,9 @@ pipeline {
             steps {
                 script {
                     withCredentials([usernamePassword(credentialsId: DOCKER_CREDENTIALS_ID, passwordVariable: 'DOCKER_PASSWORD', usernameVariable: 'DOCKER_USERNAME')]) {
-                        sh "echo $DOCKER_PASSWORD | docker login -u $DOCKER_USERNAME --password-stdin"
-                        echo "Logged into Docker Hub successfully"
+                        sh 'echo $DOCKER_PASSWORD | docker login -u $DOCKER_USERNAME --password-stdin'
                     }
-                    // Публикация образа
-                    docker.withRegistry('https://index.docker.io/v2/', DOCKER_CREDENTIALS_ID) {
-                        dockerImage.push('latest')
-                    }
-                    echo "Docker Image Pushed: ${IMAGE_NAME}:latest"
+                    sh "docker push ${IMAGE_NAME}"  // Убедитесь, что переменная IMAGE_NAME используется здесь
                 }
             }
         }
@@ -42,11 +35,8 @@ pipeline {
 
     post {
         always {
-            // Очистка рабочего пространства
             cleanWs()
-            // Логаут из Docker Hub, если это необходимо
             sh "docker logout"
-            echo "Workspace cleaned and logged out from Docker Hub"
         }
     }
 }
